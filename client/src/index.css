@@ -5,21 +5,21 @@
 @tailwind utilities;
 
 :root {
-  /* SehatSaathi Brand Palette */
-  /* Primary: Trustworthy Green #2E7D32 -> 123 46% 34% */
-  --primary: 123 46% 34%;
+  /* Classic Healthcare Brand Palette */
+  /* Primary Green: Health, reassurance, positivity #1B5E20 */
+  --primary: 122 70% 24%;
   --primary-foreground: 0 0% 100%;
 
-  /* Secondary: Calming Blue #1565C0 -> 212 79% 42% */
-  --secondary: 212 79% 42%;
+  /* Soft Blue: Trust and reliability #1976D2 */
+  --secondary: 210 79% 46%;
   --secondary-foreground: 0 0% 100%;
 
-  /* Accent: Warm Orange #FF6D00 -> 36 100% 50% */
-  --accent: 36 100% 50%;
+  /* Warm Neutrals / Accent #FF9100 */
+  --accent: 34 100% 50%;
   --accent-foreground: 0 0% 100%;
 
-  /* Backgrounds */
-  --background: 120 20% 97%; /* Very light mint #F1F8E9 */
+  /* Backgrounds: Warm neutral to reduce eye strain #FAF9F6 */
+  --background: 40 10% 97%;
   --foreground: 222 47% 11%;
   
   --card: 0 0% 100%;
@@ -28,20 +28,20 @@
   --popover: 0 0% 100%;
   --popover-foreground: 222 47% 11%;
   
-  --muted: 210 40% 96.1%;
+  --muted: 40 5% 94%;
   --muted-foreground: 215.4 16.3% 46.9%;
   
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 123 46% 34%;
+  --border: 40 5% 90%;
+  --input: 40 5% 90%;
+  --ring: 122 70% 24%;
   
-  --radius: 1rem;
+  --radius: 0.75rem;
 
   --font-sans: 'Inter', sans-serif;
-  --font-display: 'DM Sans', sans-serif;
+  --font-display: 'Poppins', sans-serif;
 }
 
 @layer base {
