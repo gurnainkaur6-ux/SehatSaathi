@@ -18,11 +18,15 @@ export interface IStorage {
   // Medicines
   getMedicines(userId: number): Promise<Medicine[]>;
   createMedicine(medicine: InsertMedicine): Promise<Medicine>;
+  updateMedicine(id: number, data: Partial<InsertMedicine>): Promise<Medicine>;
+  deleteMedicine(id: number): Promise<void>;
   toggleMedicineTaken(id: number, taken: boolean): Promise<Medicine>;
+  resetAllMedicines(userId: number): Promise<void>;
 
   // Health Records
   getHealthRecords(userId: number): Promise<HealthRecord[]>;
   createHealthRecord(record: InsertHealthRecord): Promise<HealthRecord>;
+  deleteHealthRecord(id: number): Promise<void>;
 
   // Messages
   getMessages(userId: number): Promise<Message[]>;
@@ -54,6 +58,19 @@ export class DatabaseStorage implements IStorage {
     return newMedicine;
   }
 
+  async updateMedicine(id: number, data: Partial<InsertMedicine>): Promise<Medicine> {
+    const [updated] = await db.update(medicines).set(data).where(eq(medicines.id, id)).returning();
+    return updated;
+  }
+
+  async deleteMedicine(id: number): Promise<void> {
+    await db.delete(medicines).where(eq(medicines.id, id));
+  }
+
+  async resetAllMedicines(userId: number): Promise<void> {
+    await db.update(medicines).set({ taken: false }).where(eq(medicines.userId, userId));
+  }
+
   async toggleMedicineTaken(id: number, taken: boolean): Promise<Medicine> {
     const [updated] = await db.update(medicines)
       .set({ taken })
@@ -66,12 +83,16 @@ export class DatabaseStorage implements IStorage {
     return await db.select()
       .from(healthRecords)
       .where(eq(healthRecords.userId, userId))
-      .orderBy(desc(healthRecords.date));
+      .orderBy(desc(healthRecords.createdAt));
   }
 
   async createHealthRecord(record: InsertHealthRecord): Promise<HealthRecord> {
     const [newRecord] = await db.insert(healthRecords).values(record).returning();
     return newRecord;
+  }
+
+  async deleteHealthRecord(id: number): Promise<void> {
+    await db.delete(healthRecords).where(eq(healthRecords.id, id));
   }
 
   async getMessages(userId: number): Promise<Message[]> {

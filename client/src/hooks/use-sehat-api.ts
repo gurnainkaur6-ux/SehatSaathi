@@ -2,145 +2,178 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, buildUrl } from "@shared/routes";
 import { z } from "zod";
 
-// ============================================
-// MEDICINES
-// ============================================
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function getStoredUser() {
+  try {
+    const raw = localStorage.getItem("sehat_user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function getUserId(): number {
+  return getStoredUser()?.id ?? 0;
+}
+
+async function apiFetch(url: string, options?: RequestInit) {
+  const res = await fetch(url, { credentials: "include", ...options });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: "Request failed" }));
+    throw new Error(err.message || "Request failed");
+  }
+  return res.json();
+}
+
+// ─── MEDICINES ───────────────────────────────────────────────────────────────
 
 export function useMedicines() {
+  const userId = getUserId();
   return useQuery({
-    queryKey: [api.medicines.list.path],
-    queryFn: async () => {
-      const res = await fetch(api.medicines.list.path, { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to load medicines");
-      return api.medicines.list.responses[200].parse(await res.json());
-    },
+    queryKey: [api.medicines.list.path, userId],
+    queryFn: () => apiFetch(`${api.medicines.list.path}?userId=${userId}`),
+    enabled: userId > 0,
   });
 }
 
 export function useCreateMedicine() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
+  const userId = getUserId();
   return useMutation({
-    mutationFn: async (data: z.infer<typeof api.medicines.create.input>) => {
-      const res = await fetch(api.medicines.create.path, {
-        method: api.medicines.create.method,
+    mutationFn: (data: z.infer<typeof api.medicines.create.input>) =>
+      apiFetch(api.medicines.create.path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, userId }),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [api.medicines.list.path, userId] }),
+  });
+}
+
+export function useUpdateMedicine() {
+  const qc = useQueryClient();
+  const userId = getUserId();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<z.infer<typeof api.medicines.create.input>> }) =>
+      apiFetch(`/api/medicines/${id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to add medicine");
-      return api.medicines.create.responses[201].parse(await res.json());
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.medicines.list.path] });
-    },
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [api.medicines.list.path, userId] }),
+  });
+}
+
+export function useDeleteMedicine() {
+  const qc = useQueryClient();
+  const userId = getUserId();
+  return useMutation({
+    mutationFn: (id: number) =>
+      apiFetch(`/api/medicines/${id}`, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [api.medicines.list.path, userId] }),
   });
 }
 
 export function useToggleMedicine() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
+  const userId = getUserId();
   return useMutation({
-    mutationFn: async ({ id, taken }: { id: number; taken: boolean }) => {
-      const url = buildUrl(api.medicines.toggleTaken.path, { id });
-      const res = await fetch(url, {
-        method: api.medicines.toggleTaken.method,
+    mutationFn: ({ id, taken }: { id: number; taken: boolean }) =>
+      apiFetch(buildUrl(api.medicines.toggleTaken.path, { id }), {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ taken }),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to update status");
-      return api.medicines.toggleTaken.responses[200].parse(await res.json());
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.medicines.list.path] });
-    },
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [api.medicines.list.path, userId] }),
   });
 }
 
-// ============================================
-// HEALTH RECORDS
-// ============================================
+export function useResetMedicines() {
+  const qc = useQueryClient();
+  const userId = getUserId();
+  return useMutation({
+    mutationFn: () =>
+      apiFetch("/api/medicines/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [api.medicines.list.path, userId] }),
+  });
+}
+
+// ─── HEALTH RECORDS ──────────────────────────────────────────────────────────
 
 export function useHealthRecords() {
+  const userId = getUserId();
   return useQuery({
-    queryKey: [api.healthRecords.list.path],
-    queryFn: async () => {
-      const res = await fetch(api.healthRecords.list.path, { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to load records");
-      return api.healthRecords.list.responses[200].parse(await res.json());
-    },
+    queryKey: [api.healthRecords.list.path, userId],
+    queryFn: () => apiFetch(`${api.healthRecords.list.path}?userId=${userId}`),
+    enabled: userId > 0,
   });
 }
 
 export function useCreateHealthRecord() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
+  const userId = getUserId();
   return useMutation({
-    mutationFn: async (data: z.infer<typeof api.healthRecords.create.input>) => {
-      const res = await fetch(api.healthRecords.create.path, {
-        method: api.healthRecords.create.method,
+    mutationFn: (data: z.infer<typeof api.healthRecords.create.input>) =>
+      apiFetch(api.healthRecords.create.path, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to upload record");
-      return api.healthRecords.create.responses[201].parse(await res.json());
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.healthRecords.list.path] });
-    },
+        body: JSON.stringify({ ...data, userId }),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [api.healthRecords.list.path, userId] }),
   });
 }
 
-// ============================================
-// MESSAGES (DOCTOR CHAT)
-// ============================================
+export function useDeleteHealthRecord() {
+  const qc = useQueryClient();
+  const userId = getUserId();
+  return useMutation({
+    mutationFn: (id: number) =>
+      apiFetch(`/api/records/${id}`, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [api.healthRecords.list.path, userId] }),
+  });
+}
+
+// ─── MESSAGES ────────────────────────────────────────────────────────────────
 
 export function useMessages() {
+  const userId = getUserId();
   return useQuery({
-    queryKey: [api.messages.list.path],
-    queryFn: async () => {
-      const res = await fetch(api.messages.list.path, { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to load messages");
-      return api.messages.list.responses[200].parse(await res.json());
-    },
-    refetchInterval: 5000, // Simple polling for demo
+    queryKey: [api.messages.list.path, userId],
+    queryFn: () => apiFetch(`${api.messages.list.path}?userId=${userId}`),
+    enabled: userId > 0,
+    refetchInterval: 4000,
   });
 }
 
 export function useSendMessage() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
+  const userId = getUserId();
   return useMutation({
-    mutationFn: async (data: z.infer<typeof api.messages.send.input>) => {
-      const res = await fetch(api.messages.send.path, {
-        method: api.messages.send.method,
+    mutationFn: (data: z.infer<typeof api.messages.send.input>) =>
+      apiFetch(api.messages.send.path, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to send message");
-      return api.messages.send.responses[201].parse(await res.json());
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.messages.list.path] });
-    },
+        body: JSON.stringify({ ...data, userId }),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [api.messages.list.path, userId] }),
   });
 }
 
-// ============================================
-// AUTH
-// ============================================
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
 
 export function useLogin() {
   return useMutation({
     mutationFn: async (data: z.infer<typeof api.auth.login.input>) => {
-      const res = await fetch(api.auth.login.path, {
-        method: api.auth.login.method,
+      const user = await apiFetch(api.auth.login.path, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-        credentials: "include",
       });
-      if (!res.ok) throw new Error("Login failed");
-      const user = await res.json();
-      // Simple client-side session simulation
       localStorage.setItem("sehat_user", JSON.stringify(user));
       return user;
     },
@@ -150,11 +183,7 @@ export function useLogin() {
 export function useLogout() {
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch(api.auth.logout.path, {
-        method: api.auth.logout.method,
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Logout failed");
+      await apiFetch(api.auth.logout.path, { method: "POST" });
       localStorage.removeItem("sehat_user");
     },
   });
