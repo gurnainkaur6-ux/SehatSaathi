@@ -4,8 +4,14 @@ import { useLogin } from "@/hooks/use-sehat-api";
 import { PageContainer } from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { HeartPulse, Loader2, Phone } from "lucide-react";
+import { HeartPulse, Loader2, Phone, ShieldCheck, Lock, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+const TRUST_BADGES = [
+  { icon: ShieldCheck, text: "100% Secure" },
+  { icon: Lock, text: "Private Data" },
+  { icon: Star, text: "Free to Use" },
+];
 
 export default function Login() {
   const [phone, setPhone] = useState("");
@@ -18,7 +24,7 @@ export default function Login() {
     e.preventDefault();
     if (phone.length < 10) {
       toast({
-        title: "Invalid Phone Number",
+        title: "Invalid Number",
         description: "Please enter a valid 10-digit mobile number.",
         variant: "destructive",
       });
@@ -29,95 +35,123 @@ export default function Login() {
       { phoneNumber: phone, name: name || "User" },
       {
         onSuccess: () => {
-          toast({
-            title: "Welcome to SehatSaathi",
-            description: "Your health companion is ready.",
-          });
+          toast({ title: "Welcome to SehatSaathi 🙏", description: "Your health companion is ready." });
           setLocation("/home");
         },
         onError: () => {
-          toast({
-            title: "Login Failed",
-            description: "Please try again later.",
-            variant: "destructive",
-          });
+          toast({ title: "Login Failed", description: "Please try again.", variant: "destructive" });
         },
       }
     );
   };
 
   return (
-    <PageContainer className="bg-white justify-center px-6">
-      <div className="flex flex-col items-center justify-center space-y-8 py-12">
-        <div className="relative">
-          <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-150 animate-pulse" />
-          <div className="bg-primary rounded-3xl p-6 shadow-xl relative z-10">
-            <HeartPulse className="w-16 h-16 text-white" />
+    <PageContainer className="bg-white justify-center">
+      <div className="flex flex-col min-h-screen">
+        {/* Top Brand Area */}
+        <div className="bg-gradient-to-b from-primary to-primary/80 px-6 pt-16 pb-12 flex flex-col items-center text-white">
+          <div className="relative mb-5">
+            <div className="absolute inset-0 bg-white/20 blur-xl rounded-full scale-150 animate-pulse" />
+            <div className="bg-white/20 rounded-3xl p-5 shadow-xl relative z-10 border border-white/30">
+              <HeartPulse className="w-14 h-14 text-white" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-bold font-display tracking-tight">SehatSaathi</h1>
+          <p className="text-white/80 text-base mt-2 text-center leading-snug">
+            Your trusted companion for everyday health
+          </p>
+
+          {/* Trust Badges */}
+          <div className="flex gap-4 mt-6">
+            {TRUST_BADGES.map(({ icon: Icon, text }) => (
+              <div key={text} className="flex flex-col items-center gap-1">
+                <div className="bg-white/15 rounded-full p-2">
+                  <Icon className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-[10px] text-white/80 font-medium">{text}</span>
+              </div>
+            ))}
           </div>
         </div>
-        
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-primary font-display">SehatSaathi</h1>
-          <p className="text-muted-foreground text-lg">Your trusted companion for everyday health</p>
-        </div>
 
-        <form onSubmit={handleLogin} className="w-full space-y-6 mt-8">
-          <div className="space-y-4">
+        {/* Form Area */}
+        <div className="flex-1 bg-white rounded-t-3xl -mt-4 px-6 pt-8 pb-10 space-y-6 shadow-inner">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 font-display">Enter your details</h2>
+            <p className="text-gray-500 text-sm mt-1">No password needed — your phone number is enough</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium text-gray-700 ml-1">
-                Your Name (Optional)
+              <label htmlFor="name" className="text-sm font-semibold text-gray-700">
+                Your Name <span className="text-gray-400 font-normal">(optional)</span>
               </label>
               <Input
                 id="name"
                 type="text"
-                placeholder="Enter your name"
-                className="h-14 text-lg px-4 rounded-xl border-2 focus-visible:ring-primary"
+                placeholder="e.g. Ravi Kumar"
+                className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 focus-visible:ring-primary focus-visible:border-primary"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                data-testid="input-name"
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="phone" className="text-sm font-medium text-gray-700 ml-1">
-                Mobile Number
+              <label htmlFor="phone" className="text-sm font-semibold text-gray-700">
+                Mobile Number <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1 text-gray-500">
+                  <Phone className="w-4 h-4" />
+                  <span className="text-sm font-medium text-gray-600 border-r border-gray-300 pr-2">+91</span>
+                </div>
                 <Input
                   id="phone"
                   type="tel"
                   placeholder="98765 43210"
-                  className="h-14 text-lg pl-12 rounded-xl border-2 focus-visible:ring-primary font-mono tracking-wide"
+                  className="h-14 text-base pl-16 rounded-xl border-2 border-gray-200 focus-visible:ring-primary focus-visible:border-primary font-mono tracking-wider"
                   value={phone}
                   onChange={(e) => {
                     const val = e.target.value.replace(/\D/g, "");
                     if (val.length <= 10) setPhone(val);
                   }}
                   required
+                  data-testid="input-phone"
                 />
               </div>
+              {phone.length > 0 && phone.length < 10 && (
+                <p className="text-xs text-red-500 ml-1">{10 - phone.length} more digits needed</p>
+              )}
+              {phone.length === 10 && (
+                <p className="text-xs text-green-600 ml-1">✅ Number looks good!</p>
+              )}
             </div>
-          </div>
 
-          <Button
-            type="submit"
-            className="w-full h-14 text-lg font-semibold rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
-            disabled={login.isPending || phone.length < 10}
-          >
-            {login.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Verifying...
-              </>
-            ) : (
-              "Continue Securely"
-            )}
-          </Button>
-          
-          <p className="text-xs text-center text-muted-foreground mt-4">
-            By continuing, you agree to our Terms of Service and Privacy Policy.
-          </p>
-        </form>
+            <Button
+              type="submit"
+              className="w-full h-14 text-lg font-bold rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 transition-all active:scale-[0.98] mt-2"
+              disabled={login.isPending || phone.length < 10}
+              data-testid="button-login"
+            >
+              {login.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                "Continue Securely →"
+              )}
+            </Button>
+
+            <p className="text-xs text-center text-gray-400 leading-relaxed">
+              By continuing, you agree to our{" "}
+              <span className="text-primary underline cursor-pointer">Terms</span> and{" "}
+              <span className="text-primary underline cursor-pointer">Privacy Policy</span>.
+              <br />Your data is never shared without consent.
+            </p>
+          </form>
+        </div>
       </div>
     </PageContainer>
   );
