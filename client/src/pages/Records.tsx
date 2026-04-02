@@ -54,34 +54,27 @@ export default function Records() {
     e.preventDefault();
     createRecord.mutate(
       {
-        type,
-        notes,
-        userId: 1,
+        type, notes, userId: 1,
         date: new Date().toLocaleDateString(),
         doctorName: "Dr. Anjali Sharma",
-        imageUrl:
-          imagePreview ||
-          "https://images.unsplash.com/photo-1555617981-d1a11e5f762d?q=80&w=200&auto=format&fit=crop",
+        imageUrl: imagePreview || "https://images.unsplash.com/photo-1555617981-d1a11e5f762d?q=80&w=200&auto=format&fit=crop",
       },
       {
         onSuccess: () => {
-          setOpen(false);
-          setNotes("");
-          setImagePreview(null);
+          setOpen(false); setNotes(""); setImagePreview(null);
           toast({ title: "✅ Record Saved", description: "Stored securely in your health folder." });
         },
       }
     );
   };
 
-  const filteredRecords =
-    activeTab === "all" ? records : records?.filter((r) => r.type === activeTab);
+  const filteredRecords = activeTab === "all" ? records : records?.filter((r) => r.type === activeTab);
 
   return (
     <PageContainer>
       <Header title="Health Records" showBack />
 
-      <main className="p-4 space-y-5 pb-24">
+      <main className="p-4 md:p-8 space-y-5 pb-24 md:pb-8 md:max-w-4xl md:mx-auto md:w-full">
         {/* Header Row */}
         <div className="flex justify-between items-center">
           <div>
@@ -90,18 +83,13 @@ export default function Records() {
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button
-                className="rounded-full bg-accent hover:bg-accent/90 text-white h-12 w-12 shadow-lg shadow-accent/20"
-                size="icon"
-                data-testid="button-add-record"
-              >
+              <Button className="rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg shadow-accent/20 gap-2 px-4 h-11" data-testid="button-add-record">
                 <Camera className="w-5 h-5" />
+                <span className="hidden sm:inline font-semibold">Upload Record</span>
               </Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Upload New Record</DialogTitle>
-              </DialogHeader>
+              <DialogHeader><DialogTitle>Upload New Record</DialogTitle></DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 py-4">
                 <div
                   className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors min-h-[120px]"
@@ -117,23 +105,12 @@ export default function Records() {
                       <p className="text-xs text-gray-400 mt-1">Supports JPG, PNG, PDF</p>
                     </>
                   )}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-                    onChange={handleFileChange}
-                    data-testid="input-file-upload"
-                  />
+                  <input ref={fileInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} data-testid="input-file-upload" />
                 </div>
-
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">Document Type</label>
                   <Select value={type} onValueChange={setType}>
-                    <SelectTrigger className="h-12" data-testid="select-record-type">
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger className="h-12" data-testid="select-record-type"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="prescription">💊 Prescription</SelectItem>
                       <SelectItem value="report">🧪 Lab Report</SelectItem>
@@ -141,24 +118,11 @@ export default function Records() {
                     </SelectContent>
                   </Select>
                 </div>
-
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">Notes (Optional)</label>
-                  <Input
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="e.g. Fever medication, blood test"
-                    className="h-12"
-                    data-testid="input-record-notes"
-                  />
+                  <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g. Fever medication, blood test" className="h-12" data-testid="input-record-notes" />
                 </div>
-
-                <Button
-                  type="submit"
-                  className="w-full h-12 text-base"
-                  disabled={createRecord.isPending}
-                  data-testid="button-save-record"
-                >
+                <Button type="submit" className="w-full h-12 text-base" disabled={createRecord.isPending} data-testid="button-save-record">
                   {createRecord.isPending ? "Saving..." : "Save Record"}
                 </Button>
               </form>
@@ -174,9 +138,7 @@ export default function Records() {
               onClick={() => setActiveTab(tab.value)}
               className={cn(
                 "shrink-0 text-xs font-semibold px-4 py-2 rounded-full transition-all whitespace-nowrap",
-                activeTab === tab.value
-                  ? "bg-primary text-white shadow-sm"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                activeTab === tab.value ? "bg-primary text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               )}
               data-testid={`tab-${tab.value}`}
             >
@@ -185,25 +147,21 @@ export default function Records() {
           ))}
         </div>
 
-        {/* Records List */}
+        {/* Records Grid */}
         {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-gray-100 animate-pulse rounded-xl" />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-gray-100 animate-pulse rounded-xl" />)}
           </div>
         ) : filteredRecords?.length === 0 ? (
           <div className="text-center py-14 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50">
             <FileText className="w-14 h-14 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-600 font-semibold text-lg">No records found</p>
             <p className="text-sm text-gray-400 mt-1">
-              {activeTab === "all"
-                ? "Tap the camera button to add your first record"
-                : `No ${activeTab}s yet`}
+              {activeTab === "all" ? "Tap the upload button to add your first record" : `No ${activeTab}s yet`}
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredRecords?.map((record) => {
               const TypeIcon = RECORD_TYPE_ICONS[record.type] ?? FileText;
               const colorClass = RECORD_TYPE_COLORS[record.type] ?? "bg-gray-50 text-gray-600 border-gray-100";
@@ -214,11 +172,7 @@ export default function Records() {
                   data-testid={`card-record-${record.id}`}
                 >
                   {record.imageUrl ? (
-                    <img
-                      src={record.imageUrl}
-                      alt={record.type}
-                      className="w-16 h-16 rounded-xl object-cover shrink-0 border border-gray-100"
-                    />
+                    <img src={record.imageUrl} alt={record.type} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-gray-100" />
                   ) : (
                     <div className={`w-16 h-16 rounded-xl flex items-center justify-center shrink-0 border ${colorClass}`}>
                       <TypeIcon className="w-8 h-8" />
@@ -228,15 +182,11 @@ export default function Records() {
                     <span className={cn("inline-block text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border mb-1", colorClass)}>
                       {record.type}
                     </span>
-                    {record.notes && (
-                      <p className="text-sm font-semibold text-gray-800 truncate">{record.notes}</p>
-                    )}
+                    {record.notes && <p className="text-sm font-semibold text-gray-800 truncate">{record.notes}</p>}
                     <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                      <Calendar className="w-3 h-3" />
-                      {record.date}
+                      <Calendar className="w-3 h-3" />{record.date}
                     </p>
                   </div>
-                  <TypeIcon className={cn("w-5 h-5 shrink-0", colorClass.split(" ")[1])} />
                 </div>
               );
             })}

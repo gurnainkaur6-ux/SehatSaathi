@@ -10,11 +10,18 @@ interface PageContainerProps {
 export function PageContainer({ children, className }: PageContainerProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className={cn("flex flex-col flex-1 w-full max-w-md mx-auto bg-background min-h-screen pb-20 relative", className)}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className={cn(
+        "flex flex-col w-full bg-background relative",
+        // Mobile: full screen with bottom padding for nav
+        "min-h-screen",
+        // Desktop: fill the sidebar layout naturally
+        "md:min-h-0 md:flex-1",
+        className
+      )}
     >
       {children}
     </motion.div>

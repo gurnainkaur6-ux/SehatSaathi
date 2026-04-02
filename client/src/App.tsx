@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BottomNav } from "@/components/BottomNav";
+import { Sidebar } from "@/components/Sidebar";
 import { useEffect } from "react";
 
 // Pages
@@ -19,28 +20,37 @@ function ProtectedRoute({ component: Component, ...props }: any) {
   const user = localStorage.getItem("sehat_user");
 
   useEffect(() => {
-    if (!user) {
-      setLocation("/");
-    }
+    if (!user) setLocation("/");
   }, [user, setLocation]);
 
   if (!user) return null;
   return <Component {...props} />;
 }
 
-function Router() {
+function AppLayout() {
+  const [location] = useLocation();
+  const isLogin = location === "/";
+
   return (
-    <>
-      <Switch>
-        <Route path="/" component={Login} />
-        <Route path="/home" component={() => <ProtectedRoute component={Home} />} />
-        <Route path="/medicines" component={() => <ProtectedRoute component={Medicines} />} />
-        <Route path="/records" component={() => <ProtectedRoute component={Records} />} />
-        <Route path="/doctor" component={() => <ProtectedRoute component={Doctor} />} />
-        <Route component={NotFound} />
-      </Switch>
-      <BottomNav />
-    </>
+    <div className={`flex min-h-screen bg-background ${isLogin ? "" : "md:flex-row"}`}>
+      {/* Sidebar — desktop only, hidden on login */}
+      {!isLogin && <Sidebar />}
+
+      {/* Main content area */}
+      <main className={`flex-1 flex flex-col overflow-hidden ${isLogin ? "" : "md:max-h-screen md:overflow-y-auto"}`}>
+        <Switch>
+          <Route path="/" component={Login} />
+          <Route path="/home" component={() => <ProtectedRoute component={Home} />} />
+          <Route path="/medicines" component={() => <ProtectedRoute component={Medicines} />} />
+          <Route path="/records" component={() => <ProtectedRoute component={Records} />} />
+          <Route path="/doctor" component={() => <ProtectedRoute component={Doctor} />} />
+          <Route component={NotFound} />
+        </Switch>
+
+        {/* Bottom nav — mobile only */}
+        {!isLogin && <BottomNav />}
+      </main>
+    </div>
   );
 }
 
@@ -49,7 +59,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Router />
+        <AppLayout />
       </TooltipProvider>
     </QueryClientProvider>
   );

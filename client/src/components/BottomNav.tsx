@@ -12,16 +12,20 @@ export function BottomNav() {
     { href: "/doctor", icon: Stethoscope, label: "Doctor" },
   ];
 
-  // Don't show on login page
   if (location === "/") return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 md:hidden">
       <div className="max-w-md mx-auto flex justify-around items-center h-16 px-2">
         {navItems.map(({ href, icon: Icon, label }) => {
           const isActive = location === href;
           return (
-            <Link key={href} href={href} className="w-full h-full flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform">
+            <Link
+              key={href}
+              href={href}
+              className="w-full h-full flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform"
+              data-testid={`bottom-nav-${label.toLowerCase()}`}
+            >
               <div
                 className={cn(
                   "flex flex-col items-center justify-center space-y-1 w-full h-full border-t-2",

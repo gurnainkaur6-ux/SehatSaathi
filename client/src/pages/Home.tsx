@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Header } from "@/components/Header";
 import { PageContainer } from "@/components/PageContainer";
 import { useMedicines } from "@/hooks/use-sehat-api";
-import { Pill, FileText, Stethoscope, PhoneCall, ChevronRight, Sun, Moon, Sunset, CheckCircle2, AlertCircle } from "lucide-react";
+import { Pill, FileText, Stethoscope, PhoneCall, ChevronRight, Sun, Sunset, Moon, CheckCircle2, AlertCircle } from "lucide-react";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -64,22 +64,21 @@ export default function Home() {
     <PageContainer>
       <Header />
 
-      <main className="p-4 space-y-5 pb-24">
+      <main className="p-4 md:p-8 space-y-5 pb-24 md:pb-8 md:max-w-4xl md:mx-auto md:w-full">
         {/* Greeting */}
-        <div className="bg-gradient-to-br from-primary to-primary/80 text-white p-5 rounded-2xl shadow-lg shadow-primary/20">
+        <div className="bg-gradient-to-br from-primary to-primary/80 text-white p-5 md:p-7 rounded-2xl shadow-lg shadow-primary/20">
           <p className="text-primary-foreground/80 text-sm font-medium mb-1">{greetingText} 🙏</p>
-          <h2 className="text-2xl font-bold font-display capitalize">{firstName}!</h2>
-          <p className="text-primary-foreground/80 text-sm mt-1">Stay healthy, stay happy today.</p>
+          <h2 className="text-2xl md:text-3xl font-bold font-display capitalize">{firstName}!</h2>
+          <p className="text-primary-foreground/80 text-sm md:text-base mt-1">Stay healthy, stay happy today.</p>
         </div>
 
-        {/* Medicine Progress Card */}
+        {/* Medicine Progress */}
         {totalMeds > 0 && (
           <div className={`p-4 rounded-2xl border-2 flex items-center gap-4 ${allDone ? "bg-green-50 border-green-200" : "bg-orange-50 border-orange-200"}`}>
-            <div className={`p-3 rounded-full ${allDone ? "bg-green-100" : "bg-orange-100"}`}>
+            <div className={`p-3 rounded-full shrink-0 ${allDone ? "bg-green-100" : "bg-orange-100"}`}>
               {allDone
                 ? <CheckCircle2 className="w-7 h-7 text-green-600" />
-                : <AlertCircle className="w-7 h-7 text-orange-500" />
-              }
+                : <AlertCircle className="w-7 h-7 text-orange-500" />}
             </div>
             <div className="flex-1">
               <p className={`font-bold text-base ${allDone ? "text-green-800" : "text-orange-800"}`}>
@@ -98,21 +97,21 @@ export default function Home() {
           </div>
         )}
 
-        {/* Quick Actions */}
+        {/* Quick Access Cards — 1 col mobile, 3 col desktop */}
         <div>
           <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 px-1">Quick Access</h3>
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {cards.map((card) => (
               <Link key={card.title} href={card.href}>
                 <div
                   className={`
-                    flex items-center p-4 rounded-2xl border-2 shadow-sm 
+                    flex md:flex-col items-center md:items-start p-4 md:p-5 rounded-2xl border-2 shadow-sm
                     transition-all duration-200 active:scale-[0.98] cursor-pointer bg-white
-                    ${card.borderColor} hover:shadow-md
+                    ${card.borderColor} hover:shadow-md h-full
                   `}
-                  data-testid={`nav-card-${card.title.toLowerCase().replace(" ", "-")}`}
+                  data-testid={`nav-card-${card.title.toLowerCase().replace(/\s+/g, "-")}`}
                 >
-                  <div className={`p-3 rounded-xl ${card.bg} ${card.iconColor} mr-4 shrink-0`}>
+                  <div className={`p-3 rounded-xl ${card.bg} ${card.iconColor} mr-4 md:mr-0 md:mb-3 shrink-0`}>
                     <card.icon className="w-7 h-7" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -124,36 +123,35 @@ export default function Home() {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500 truncate">{card.description}</p>
+                    <p className="text-sm text-gray-500 mt-0.5">{card.description}</p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-300 shrink-0 ml-2" />
+                  <ChevronRight className="w-5 h-5 text-gray-300 shrink-0 ml-2 md:hidden" />
                 </div>
               </Link>
             ))}
           </div>
         </div>
 
-        {/* Health Tip */}
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
-          <p className="text-xs font-semibold text-blue-500 uppercase tracking-wider mb-1">💡 Today's Health Tip</p>
-          <p className="text-sm text-blue-800 leading-relaxed font-medium">
-            Drink at least 8 glasses of water daily. Staying hydrated helps your medicines work better!
-          </p>
-        </div>
+        {/* Bottom Row: Tip + SOS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Health Tip */}
+          <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
+            <p className="text-xs font-semibold text-blue-500 uppercase tracking-wider mb-1">💡 Today's Health Tip</p>
+            <p className="text-sm text-blue-800 leading-relaxed font-medium">
+              Drink at least 8 glasses of water daily. Staying hydrated helps your medicines work better!
+            </p>
+          </div>
 
-        {/* Emergency SOS */}
-        <div>
+          {/* Emergency SOS */}
           <button
             className="w-full bg-red-500 hover:bg-red-600 active:scale-[0.98] text-white rounded-2xl p-5 flex items-center justify-center gap-4 shadow-xl shadow-red-200 transition-all"
             data-testid="button-emergency-sos"
             onClick={() => {
-              if (typeof window !== "undefined") {
-                const utterance = new SpeechSynthesisUtterance("Calling emergency services");
-                window.speechSynthesis.speak(utterance);
-              }
+              const utterance = new SpeechSynthesisUtterance("Calling emergency services");
+              window.speechSynthesis.speak(utterance);
             }}
           >
-            <div className="bg-white/20 p-3 rounded-full animate-pulse">
+            <div className="bg-white/20 p-3 rounded-full animate-pulse shrink-0">
               <PhoneCall className="w-7 h-7" />
             </div>
             <div className="text-left">
