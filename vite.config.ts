@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
-  base: "/SehatSaathi/", // 🔥 VERY IMPORTANT for GitHub Pages
+  base: "/",  // ✅ FIXED
 
   plugins: [react()],
 
@@ -18,7 +18,7 @@ export default defineConfig({
   root: "./client",
 
   build: {
-    outDir: "../dist", // 🔥 clean output (not dist/public)
+    outDir: "../dist",
     emptyOutDir: true,
   },
 });
