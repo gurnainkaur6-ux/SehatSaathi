@@ -17,8 +17,8 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "jsx": "preserve",
 
-    "baseUrl": "/",
-    "rootDir": ".",
+   "baseUrl": ".",
+"rootDir": ".",
 
     "types": ["node", "vite/client"],
 
